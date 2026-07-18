@@ -68,10 +68,12 @@ jobs:
           uv pip install pyinstaller
 
       - name: Build executable
+        shell: bash
         run: |
           uv run pyinstaller --onefile --name ${{ env.BIN_NAME }} src/${{ env.BIN_NAME }}/main.py
 
       - name: Build .pyz
+        shell: bash
         run: |
           uv run shiv -o build/${{ env.BIN_NAME }}.pyz \
             -p '/usr/bin/env python3' \
