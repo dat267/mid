@@ -13,13 +13,17 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
 
-      - uses: astral-sh/setup-uv@v8.3.2
+      - name: Python setup
+        uses: actions/setup-python@v5
         with:
           python-version: "3.13"
 
-      - name: Install dependencies
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install
         run: uv sync
 
       - name: Lint
@@ -36,59 +40,43 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
 
-      - uses: astral-sh/setup-uv@v8.3.2
+      - name: Python setup
+        uses: actions/setup-python@v5
         with:
           python-version: "3.13"
 
       - name: Install shiv
-        run: uv pip install shiv
+        run: pip install shiv uv
 
-      - name: Build
+      - name: Build .pyz
         run: |
           mkdir -p build
-          uv run shiv -o build/${{ github.event.repository.name }}.pyz \
+          uv run shiv -o build/mid.pyz \
             -p '/usr/bin/env python3' \
-            -e ${{ github.event.repository.name }}.main:main .
+            -e mid.main:main .
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@v4
         with:
-          name: pyz
-          path: build/*.pyz
+          name: mid.pyz
+          path: build/mid.pyz
 
   release:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v8
-        with:
-          merge-multiple: true
+      - uses: actions/download-artifact@v4
 
-      - name: Compute release tag
+      - run: ls -laR
+
+      - name: Create release
         id: meta
         run: |
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-          echo "tag=${{ github.event.repository.name }}/${SHORT_SHA}" >> "$GITHUB_OUTPUT"
-          echo "name=Release ${{ github.event.repository.name }}/${SHORT_SHA}" >> "$GITHUB_OUTPUT"
-
-      - uses: softprops/action-gh-release@v3
-        with:
-          tag_name: ${{ steps.meta.outputs.tag }}
-          name: ${{ steps.meta.outputs.name }}
-          files: "*.pyz"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Prune old releases
+          gh release create "mid/${SHORT_SHA}" \
+            --repo ${{ github.repository }} \
+            --title "Release mid/${SHORT_SHA}" \
+            mid.pyz/mid.pyz
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          KEEP=3
-          gh release list --repo ${{ github.repository }} \
-            --json tagName --jq '.[].tagName' --limit 100 \
-            | tail -n +$((KEEP + 1)) \
-            | while read tag; do
-                gh release delete "$tag" --repo ${{ github.repository }} --yes
-                gh api -X DELETE "repos/${{ github.repository }}/git/refs/tags/$tag"
-              done
