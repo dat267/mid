@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict, Optional
 
 import click
 
-from .config import APP_NAME, AppSettings
+from mid.config import APP_NAME, AppSettings
 
 
 # Dynamically generates env var name as {APP}_{OPTION} (flat, no command prefix)

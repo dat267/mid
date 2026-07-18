@@ -14,12 +14,9 @@ build:
 # Build standalone executable with PyInstaller
 binary:
     mkdir -p {{bin_dir}}
-    uv run pyinstaller --onefile --name {{app}} src/{{app}}/main.py --distpath {{bin_dir}}
-    rm -rf build/ __pycache__/ {{app}}.spec
-
-# Run the built binary
-run-bin *args:
-    {{bin_dir}}/{{app}} {{args}}
+    uv run pyinstaller --onefile --name {{app}} --paths src src/{{app}}/main.py \
+      --distpath {{bin_dir}} --workpath /tmp/{{app}}-pyi-build
+    rm -rf /tmp/{{app}}-pyi-build __pycache__/ {{app}}.spec
 run *args:
     python {{pyz}} {{args}}
 

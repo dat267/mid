@@ -70,7 +70,7 @@ jobs:
       - name: Build executable
         shell: bash
         run: |
-          uv run pyinstaller --onefile --name ${{ env.BIN_NAME }} src/${{ env.BIN_NAME }}/main.py
+          uv run pyinstaller --onefile --name ${{ env.BIN_NAME }} --paths src src/${{ env.BIN_NAME }}/main.py
 
       - name: Build .pyz
         shell: bash
