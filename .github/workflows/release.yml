@@ -63,26 +63,32 @@ jobs:
         run: |
           pip install uv
           uv sync
-          uv pip install pyinstaller
+          uv pip install pyinstaller shiv
 
       - name: Build executable
         run: |
           uv run pyinstaller --onefile --name ${{ env.BIN_NAME }} src/${{ env.BIN_NAME }}/main.py
 
-      - name: Prepare artifact
+      - name: Build .pyz
+        run: |
+          uv run shiv -o build/${{ env.BIN_NAME }}.pyz \
+            -p '/usr/bin/env python3' \
+            -e ${{ env.BIN_NAME }}.main:main .
+
+      - name: Prepare artifacts
         shell: bash
         run: |
           SUFFIX=""
           [[ "${{ matrix.target }}" == *-windows-* ]] && SUFFIX=".exe"
           OUT="${BIN_NAME}-${{ matrix.target }}${SUFFIX}"
           cp "dist/${BIN_NAME}${SUFFIX}" "$OUT"
-          echo "artifact=$OUT" >> "$GITHUB_OUTPUT"
-        id: artifact
 
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ env.BIN_NAME }}-${{ matrix.target }}
-          path: ${{ env.BIN_NAME }}-${{ matrix.target }}*
+          path: |
+            ${{ env.BIN_NAME }}-${{ matrix.target }}*
+            build/${{ env.BIN_NAME }}.pyz
 
   release:
     needs: build

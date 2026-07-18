@@ -1,6 +1,7 @@
 app := "mid"
 out := "build"
 pyz := out + "/" + app + ".pyz"
+bin_dir := out + "/bin"
 
 default: build
 
@@ -10,7 +11,15 @@ build:
     uv run shiv -o {{pyz}} -p '/usr/bin/env python3' -e {{app}}.main:main .
     rm -rf {{out}}/bdist.* {{out}}/lib
 
-# Run the .pyz
+# Build standalone executable with PyInstaller
+binary:
+    mkdir -p {{bin_dir}}
+    uv run pyinstaller --onefile --name {{app}} src/{{app}}/main.py --distpath {{bin_dir}}
+    rm -rf build/ __pycache__/ {{app}}.spec
+
+# Run the built binary
+run-bin *args:
+    {{bin_dir}}/{{app}} {{args}}
 run *args:
     python {{pyz}} {{args}}
 
@@ -27,7 +36,8 @@ check:
 clean:
     rm -rf {{out}}/ __pycache__/ .mypy_cache/ .pytest_cache/ .ruff_cache/
     find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+    rm -rf *.spec
 
 # Install dev dependencies
 setup:
-    uv pip install shiv pytest ruff mypy
+    uv pip install shiv pyinstaller pytest ruff mypy

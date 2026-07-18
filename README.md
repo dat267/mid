@@ -4,8 +4,27 @@ A scalable, opinionated base CLI application in Python — the template I use fo
 
 ## Install
 
-**Single-file executable (requires Python 3.12+):**
+**Binary** — download from [GitHub Releases](https://github.com/dat267/mid/releases):
 
+**Linux (x86_64):**
+```bash
+curl -sSfL https://github.com/dat267/mid/releases/latest/download/mid-x86_64-unknown-linux-gnu -o ~/.local/bin/mid
+chmod +x ~/.local/bin/mid
+```
+
+**macOS (arm64):**
+```bash
+curl -sSfL https://github.com/dat267/mid/releases/latest/download/mid-aarch64-apple-darwin -o ~/.local/bin/mid
+chmod +x ~/.local/bin/mid
+```
+
+**Windows (x86_64):**
+```powershell
+mkdir -Force ~\.local\bin >$null
+curl -sSfL https://github.com/dat267/mid/releases/latest/download/mid-x86_64-pc-windows-msvc.exe -o ~\.local\bin\mid.exe
+```
+
+**Single-file `.pyz` (requires Python 3.12+):**
 ```bash
 curl -sSfL https://github.com/dat267/mid/releases/latest/download/mid.pyz -o ~/.local/bin/mid.pyz
 chmod +x ~/.local/bin/mid.pyz
