@@ -26,7 +26,7 @@ jobs:
         run: pip install uv
 
       - name: Install
-        run: uv sync
+        run: uv sync --dev
 
       - name: Lint
         run: uv run ruff check .
@@ -59,11 +59,13 @@ jobs:
         with:
           python-version: "3.13"
 
+      - name: Install uv
+        run: pip install uv
+
       - name: Install dependencies
         run: |
-          pip install uv
-          uv sync
-          uv pip install pyinstaller shiv
+          uv sync --dev
+          uv pip install pyinstaller
 
       - name: Build executable
         run: |
